@@ -86,3 +86,35 @@ var createMochaStartFn = function(mocha) {
     mocha.run();
   };
 };
+
+
+var defaultConfig = {
+  reporter: createMochaReporterConstructor(window.__karma__),
+  ui: 'bdd',
+  globals: ['__cov*']
+};
+
+// Pass options from client.mocha to mocha
+var createConfigObject = function(karma) {
+  if (!karma.config || !karma.config.mocha) {
+    return defaultConfig;
+  }
+
+  var passedIn = karma.config.mocha;
+
+  // Overwrite reporter because otherwise everything breaks down.
+  passedIn.reporter = defaultConfig.reporter;
+
+  // Default to bdd ui
+  passedIn.ui = passedIn.ui || defaultConfig.ui;
+
+  // Add our gobals
+  if (passedIn.globals && typeof passedIn.globals.concat === 'function') {
+    // Array
+    passedIn.globals.concat(defaultConfig.globals);
+  } else {
+    passedIn.globals = defaultConfig.globals;
+  }
+  return passedIn;
+};
+
